@@ -23,4 +23,4 @@ dist-ssr
 *.sw?
 
 # Document
-document/
+_document/
