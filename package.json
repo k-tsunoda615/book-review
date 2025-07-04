@@ -8,7 +8,10 @@
     "build": "tsc -b && vite build",
     "lint": "eslint .",
     "preview": "vite preview",
-    "prepare": "husky"
+    "prepare": "husky",
+    "test": "playwright test",
+    "test:ui": "playwright test --ui",
+    "test:headed": "playwright test --headed"
   },
   "lint-staged": {
     "*.{js,jsx,ts,tsx}": [
@@ -25,9 +28,11 @@
   },
   "devDependencies": {
     "@eslint/js": "^9.29.0",
+    "@playwright/test": "^1.53.2",
     "@tailwindcss/postcss": "^4.1.11",
     "@types/eslint-plugin-jsx-a11y": "^6",
     "@types/eslint-plugin-tailwindcss": "^3",
+    "@types/node": "^24.0.10",
     "@types/react": "^19.1.8",
     "@types/react-dom": "^19.1.6",
     "@vitejs/plugin-react": "^4.6.0",
