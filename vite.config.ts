@@ -11,5 +11,9 @@ export default defineConfig({
     environment: "jsdom",
     globals: true,
     setupFiles: ["./src/test/setup.ts"],
+    // Vitestで実行するテストファイルのパターンを指定
+    include: ["src/**/*.{test,spec}.{js,mjs,cjs,ts,mts,cts,jsx,tsx}"],
+    // Playwrightのテストファイルを除外
+    exclude: ["node_modules/**", "tests/**", "e2e/**", "playwright/**"],
   },
 });
