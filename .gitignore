@@ -33,3 +33,6 @@ _document/
 /playwright-report/
 /blob-report/
 /playwright/.cache/
+
+# Vitest
+coverage/
