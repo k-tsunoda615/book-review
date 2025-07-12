@@ -42,5 +42,4 @@ jobs:
         with:
           name: vitest-coverage-report
           path: coverage/
-          # GitHubの最大保持期間で設定
-          retention-days: 400
+          retention-days: 90
