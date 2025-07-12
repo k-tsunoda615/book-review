@@ -106,7 +106,6 @@ function LoginPage() {
             メールアドレス
           </label>
           <input
-            type="email"
             id="email"
             {...register("email", {
               required: "メールアドレスは必須です",
