@@ -13,7 +13,7 @@ test.describe("ログイン画面のバリデーションテスト", () => {
 
     // フォーム要素の確認
     await expect(page.getByLabel("メールアドレス")).toBeVisible();
-    await expect(page.getByLabel("パスワード")).toBeVisible();
+    await expect(page.locator("#password")).toBeVisible();
     await expect(page.getByRole("button", { name: "ログイン" })).toBeVisible();
   });
 
@@ -21,7 +21,7 @@ test.describe("ログイン画面のバリデーションテスト", () => {
     page,
   }) => {
     // パスワードのみ入力
-    await page.getByLabel("パスワード").fill("password123");
+    await page.locator("#password").fill("password123");
 
     // ログインボタンをクリック
     await page.getByRole("button", { name: "ログイン" }).click();
@@ -38,7 +38,7 @@ test.describe("ログイン画面のバリデーションテスト", () => {
   }) => {
     // 不正なメールアドレスを入力
     await page.getByLabel("メールアドレス").fill("invalid-email");
-    await page.getByLabel("パスワード").fill("password123");
+    await page.locator("#password").fill("password123");
 
     // ログインボタンをクリック
     await page.getByRole("button", { name: "ログイン" }).click();
@@ -71,7 +71,7 @@ test.describe("ログイン画面のバリデーションテスト", () => {
   }) => {
     // 短いパスワードを入力
     await page.getByLabel("メールアドレス").fill("test@example.com");
-    await page.getByLabel("パスワード").fill("123");
+    await page.locator("#password").fill("123");
 
     // ログインボタンをクリック
     await page.getByRole("button", { name: "ログイン" }).click();
@@ -106,7 +106,7 @@ test.describe("ログイン画面のバリデーションテスト", () => {
   }) => {
     // 正しい値を入力
     await page.getByLabel("メールアドレス").fill("test@example.com");
-    await page.getByLabel("パスワード").fill("password123");
+    await page.locator("#password").fill("password123");
 
     // ログインボタンをクリック
     await page.getByRole("button", { name: "ログイン" }).click();
