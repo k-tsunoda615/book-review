@@ -1,7 +1,8 @@
 import { useForm } from "react-hook-form";
-import { useActionState } from "react";
+import { useActionState, useEffect } from "react";
 import { useFormStatus } from "react-dom";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { useAuth } from "../hooks/useAuth";
 
 type LoginFormData = {
   email: string;
@@ -34,6 +35,16 @@ function SubmitButton() {
 }
 
 function LoginPage() {
+  const navigate = useNavigate();
+  const { login, isAuthenticated, isLoading } = useAuth();
+
+  // 既にログイン済みの場合は/listにリダイレクト
+  useEffect(() => {
+    if (!isLoading && isAuthenticated) {
+      navigate("/list");
+    }
+  }, [isAuthenticated, isLoading, navigate]);
+
   // フォームフィールドをreact-hook-formに登録
   // register()：フォームフィールドをreact-hook-formに登録する関数
   // trigger()：バリデーションを実行する関数
@@ -45,7 +56,7 @@ function LoginPage() {
 
   // Action中にバリデーションを実行
   const loginAction = async (
-    _prevState: LoginState, // 前state. 未使用だがlintエラーを防ぐために記載
+    _prevState: LoginState,
     formData: FormData,
   ): Promise<LoginState> => {
     // フォームデータを取得
@@ -69,22 +80,20 @@ function LoginPage() {
       };
     }
 
-    // ログインっぽい動きにしとく。pendingも確認できるように。
-    await new Promise((resolve) => setTimeout(resolve, 1000));
-
     try {
-      // ここで実際のAPI呼び出しを行う
-      console.log("ログイン処理:", { email, password });
+      await login(email, password);
 
       // 成功時の処理
       return {
         success: true,
         data: { email, password },
       };
-    } catch {
+    } catch (error) {
+      const errorMessage =
+        error instanceof Error ? error.message : "ログインに失敗しました";
       return {
         success: false,
-        error: "ログインに失敗しました",
+        error: errorMessage,
       };
     }
   };
@@ -93,6 +102,22 @@ function LoginPage() {
   const [loginState, dispatch] = useActionState(loginAction, {
     success: false,
   });
+
+  // ログイン成功時のリダイレクト処理
+  useEffect(() => {
+    if (loginState.success) {
+      navigate("/list");
+    }
+  }, [loginState.success, navigate]);
+
+  // 認証状態の読み込み中は何も表示しない
+  if (isLoading) {
+    return (
+      <div className="max-w-md mx-auto p-5 text-center">
+        <div className="text-gray-600">読み込み中...</div>
+      </div>
+    );
+  }
 
   return (
     <div className="max-w-md mx-auto p-5">
