@@ -87,8 +87,9 @@ test.describe("新規登録画面のE2Eテスト", () => {
         await page.locator("#password").fill("password123");
         await page.getByRole("button", { name: "ログイン" }).click();
 
-        // ログイン成功の確認（実際のアプリケーションに応じて調整）
-        await expect(page.getByText("ログインに成功しました")).toBeVisible({
+        // ログイン成功の確認（/listページへの遷移）
+        await expect(page).toHaveURL("/list", { timeout: 10000 });
+        await expect(page.getByText("書籍レビュー一覧")).toBeVisible({
           timeout: 10000,
         });
       }
