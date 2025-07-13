@@ -1,21 +1,59 @@
 import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { BrowserRouter } from "react-router-dom";
-import { describe, it, expect, vi } from "vitest";
+import { describe, it, expect, vi, beforeEach } from "vitest";
+import { AuthProvider } from "../components/AuthProvider";
 import LoginPage from "./LoginPage";
+import { authenticateUser, getUserInfo } from "../services/api";
+
+// APIサービスをモック
+vi.mock("../services/api", () => ({
+  authenticateUser: vi.fn(),
+  getUserInfo: vi.fn(),
+}));
+
+// モックされたAPIサービスの型定義
+const mockAuthenticateUser = vi.mocked(authenticateUser);
+const mockGetUserInfo = vi.mocked(getUserInfo);
+
+// localStorageをモック
+const localStorageMock = {
+  getItem: vi.fn(),
+  setItem: vi.fn(),
+  removeItem: vi.fn(),
+  clear: vi.fn(),
+};
+Object.defineProperty(window, "localStorage", {
+  value: localStorageMock,
+});
 
 // console.logをモック化
-// vi.spyOn(console, "log")：console.logメソッドをスパイ（監視）する
-// .mockImplementation(() => {})：実際のconsole.logの代わりに空の関数を実行する
-// これにより、console.logの呼び出しは記録されるが、実際のコンソール出力は行われない
 vi.spyOn(console, "log").mockImplementation(() => {});
 
 // テスト用のラッパーコンポーネント
 const TestWrapper = ({ children }: { children: React.ReactNode }) => (
-  <BrowserRouter>{children}</BrowserRouter>
+  <BrowserRouter>
+    <AuthProvider>{children}</AuthProvider>
+  </BrowserRouter>
 );
 
 describe("LoginPage", () => {
+  beforeEach(() => {
+    // 各テスト前にモックをリセット
+    vi.clearAllMocks();
+    localStorageMock.getItem.mockReturnValue(null);
+
+    // デフォルトのAPIレスポンスを設定
+    mockAuthenticateUser.mockResolvedValue({
+      token: "mock-token",
+    });
+
+    mockGetUserInfo.mockResolvedValue({
+      name: "Test User",
+      iconUrl: "https://example.com/icon.png",
+    });
+  });
+
   it("ログインフォームが正しく表示される", () => {
     render(
       <TestWrapper>
@@ -120,11 +158,12 @@ describe("LoginPage", () => {
     // フォームを送信
     await user.click(submitButton);
 
-    // ローディング状態を確認
+    // APIが呼ばれることを確認
     await waitFor(() => {
-      expect(
-        screen.getByRole("button", { name: "ログイン中..." }),
-      ).toBeInTheDocument();
+      expect(mockAuthenticateUser).toHaveBeenCalledWith(
+        "test@example.com",
+        "password123",
+      );
     });
 
     // 成功メッセージが表示されることを確認
@@ -134,17 +173,25 @@ describe("LoginPage", () => {
           screen.getByText("ログインに成功しました！"),
         ).toBeInTheDocument();
       },
-      { timeout: 2000 },
+      { timeout: 3000 },
     );
-
-    // console.logが呼ばれることを確認
-    expect(console.log).toHaveBeenCalledWith("ログイン処理:", {
-      email: "test@example.com",
-      password: "password123",
-    });
   });
 
   it("フォーム送信中にローディング状態が表示される", async () => {
+    // APIレスポンスを遅延させる
+    mockAuthenticateUser.mockImplementation(
+      () =>
+        new Promise((resolve) =>
+          setTimeout(
+            () =>
+              resolve({
+                token: "mock-token",
+              }),
+            100,
+          ),
+        ),
+    );
+
     const user = userEvent.setup();
     render(
       <TestWrapper>
@@ -168,6 +215,31 @@ describe("LoginPage", () => {
       });
       expect(loadingButton).toBeInTheDocument();
       expect(loadingButton).toBeDisabled();
+    });
+  });
+
+  it("API エラー時にエラーメッセージが表示される", async () => {
+    // APIエラーをモック
+    mockAuthenticateUser.mockRejectedValue(new Error("認証に失敗しました"));
+
+    const user = userEvent.setup();
+    render(
+      <TestWrapper>
+        <LoginPage />
+      </TestWrapper>,
+    );
+
+    const emailInput = screen.getByLabelText("メールアドレス");
+    const passwordInput = screen.getByLabelText("パスワード");
+    const submitButton = screen.getByRole("button", { name: "ログイン" });
+
+    await user.type(emailInput, "test@example.com");
+    await user.type(passwordInput, "password123");
+    await user.click(submitButton);
+
+    // エラーメッセージが表示されることを確認
+    await waitFor(() => {
+      expect(screen.getByText("認証に失敗しました")).toBeInTheDocument();
     });
   });
 
