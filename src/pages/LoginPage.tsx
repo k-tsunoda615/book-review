@@ -1,6 +1,7 @@
 import { useForm } from "react-hook-form";
 import { useActionState } from "react";
 import { useFormStatus } from "react-dom";
+import { Link } from "react-router-dom";
 
 type LoginFormData = {
   email: string;
@@ -179,6 +180,19 @@ function LoginPage() {
             <p className="text-sm text-green-600">ログインに成功しました！</p>
           </div>
         )}
+
+        {/* 新規登録画面へのリンク */}
+        <div className="text-center">
+          <p className="text-sm text-gray-600">
+            アカウントをお持ちでない方は{" "}
+            <Link
+              to="/signup"
+              className="text-blue-600 hover:text-blue-800 underline"
+            >
+              新規登録画面へ
+            </Link>
+          </p>
+        </div>
       </form>
     </div>
   );

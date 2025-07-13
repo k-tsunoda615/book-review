@@ -1,5 +1,6 @@
 import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
+import { BrowserRouter } from "react-router-dom";
 import { describe, it, expect, vi } from "vitest";
 import LoginPage from "./LoginPage";
 
@@ -9,9 +10,18 @@ import LoginPage from "./LoginPage";
 // これにより、console.logの呼び出しは記録されるが、実際のコンソール出力は行われない
 vi.spyOn(console, "log").mockImplementation(() => {});
 
+// テスト用のラッパーコンポーネント
+const TestWrapper = ({ children }: { children: React.ReactNode }) => (
+  <BrowserRouter>{children}</BrowserRouter>
+);
+
 describe("LoginPage", () => {
   it("ログインフォームが正しく表示される", () => {
-    render(<LoginPage />);
+    render(
+      <TestWrapper>
+        <LoginPage />
+      </TestWrapper>,
+    );
 
     expect(screen.getByRole("heading", { level: 1 })).toHaveTextContent(
       "ログイン",
@@ -25,7 +35,11 @@ describe("LoginPage", () => {
 
   it("空のフィールドでバリデーションエラーが表示される", async () => {
     const user = userEvent.setup();
-    render(<LoginPage />);
+    render(
+      <TestWrapper>
+        <LoginPage />
+      </TestWrapper>,
+    );
 
     const submitButton = screen.getByRole("button", { name: "ログイン" });
 
@@ -45,7 +59,11 @@ describe("LoginPage", () => {
 
   it("無効なメール形式でバリデーションエラーが表示される", async () => {
     const user = userEvent.setup();
-    render(<LoginPage />);
+    render(
+      <TestWrapper>
+        <LoginPage />
+      </TestWrapper>,
+    );
 
     const emailInput = screen.getByLabelText("メールアドレス");
     const submitButton = screen.getByRole("button", { name: "ログイン" });
@@ -63,7 +81,11 @@ describe("LoginPage", () => {
 
   it("短いパスワードでバリデーションエラーが表示される", async () => {
     const user = userEvent.setup();
-    render(<LoginPage />);
+    render(
+      <TestWrapper>
+        <LoginPage />
+      </TestWrapper>,
+    );
 
     const passwordInput = screen.getByLabelText("パスワード");
     const submitButton = screen.getByRole("button", { name: "ログイン" });
@@ -81,7 +103,11 @@ describe("LoginPage", () => {
 
   it("有効なデータでフォームが送信される", async () => {
     const user = userEvent.setup();
-    render(<LoginPage />);
+    render(
+      <TestWrapper>
+        <LoginPage />
+      </TestWrapper>,
+    );
 
     const emailInput = screen.getByLabelText("メールアドレス");
     const passwordInput = screen.getByLabelText("パスワード");
@@ -120,7 +146,11 @@ describe("LoginPage", () => {
 
   it("フォーム送信中にローディング状態が表示される", async () => {
     const user = userEvent.setup();
-    render(<LoginPage />);
+    render(
+      <TestWrapper>
+        <LoginPage />
+      </TestWrapper>,
+    );
 
     const emailInput = screen.getByLabelText("メールアドレス");
     const passwordInput = screen.getByLabelText("パスワード");
@@ -143,7 +173,11 @@ describe("LoginPage", () => {
 
   it("フォーム入力の変更が正しく処理される", async () => {
     const user = userEvent.setup();
-    render(<LoginPage />);
+    render(
+      <TestWrapper>
+        <LoginPage />
+      </TestWrapper>,
+    );
 
     const emailInput = screen.getByLabelText(
       "メールアドレス",
@@ -161,7 +195,11 @@ describe("LoginPage", () => {
   });
 
   it("入力フィールドに正しいプレースホルダーが設定されている", () => {
-    render(<LoginPage />);
+    render(
+      <TestWrapper>
+        <LoginPage />
+      </TestWrapper>,
+    );
 
     expect(
       screen.getByPlaceholderText("example@email.com"),
@@ -170,7 +208,11 @@ describe("LoginPage", () => {
   });
 
   it("パスワード入力フィールドのタイプが正しい", () => {
-    render(<LoginPage />);
+    render(
+      <TestWrapper>
+        <LoginPage />
+      </TestWrapper>,
+    );
 
     const passwordInput = screen.getByLabelText("パスワード");
     expect(passwordInput).toHaveAttribute("type", "password");
