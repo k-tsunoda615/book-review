@@ -130,7 +130,7 @@ const CompressorMockHelpers = {
   // 成功時のモック
   mockSuccess: async (compressedSize = 300 * 1024) => {
     const mockCompressor = vi.mocked((await import("compressorjs")).default);
-    mockCompressor.mockImplementation((file, options) => {
+    mockCompressor.mockImplementation((_file, options) => {
       if (options && options.success) {
         const compressedFile = new File(["compressed"], "compressed.png", {
           type: "image/png",
@@ -148,7 +148,7 @@ const CompressorMockHelpers = {
   // エラー時のモック
   mockError: async (errorMessage = "圧縮に失敗しました") => {
     const mockCompressor = vi.mocked((await import("compressorjs")).default);
-    mockCompressor.mockImplementation((file, options) => {
+    mockCompressor.mockImplementation((_file, options) => {
       if (options && options.error) {
         options.error(new Error(errorMessage));
       }
